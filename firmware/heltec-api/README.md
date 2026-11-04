@@ -12,7 +12,9 @@ built-in OLED and BOOT button. It displays commands but does not drive actuators
    SSID/password and `API_BASE_URL`, using the server computer's LAN IP, e.g.
    `http://192.168.1.100:3000`. The secrets file is ignored by Git.
    `localhost` on the board means the board itself. Keep both devices on the same
-   reachable network. This test uses local HTTP; HTTPS is not implemented.
+   reachable network. HTTP and HTTPS URLs are supported. For this temporary test, HTTPS certificate
+   verification is disabled; traffic is encrypted but the server identity is not verified.
+   Use CA verification before permanent use.
 3. Start the existing server following [its README](../../server/README.md).
    Its default bind address is already `0.0.0.0`. Allow Node through the computer's
    firewall if prompted. From another device on the same network, check
@@ -65,3 +67,27 @@ Vext 36 is enabled LOW. BOOT uses GPIO 0.
 Pins verified against [Heltec's V3 board definition](https://github.com/Heltec-Aaron-Lee/WiFi_Kit_series/blob/master/variants/heltec_wifi_kit_32_V3/pins_arduino.h).
 The project pins the ESP32 platform and direct library versions for repeatable builds.
 Without `secrets.h`, a build uses placeholder configuration; set real values before uploading.
+
+## Arduino IDE on Windows / ngrok
+
+The Arduino sketch is `HeltecApiTest/HeltecApiTest.ino`; PlatformIO includes this
+same source. Copy `HeltecApiTest` to Windows. Copy `secrets.example.h` inside it
+to `secrets.h`, and set the Wi-Fi at the ESP32 location and your ngrok HTTPS URL
+(without an API path). Do not share a secrets file containing real credentials.
+The prepared `HeltecApiTest.zip` contains only placeholders and can also be transferred.
+
+On the Mac, keep the server running and start `ngrok http 3000`. Keep both running.
+When the ngrok URL changes, update the sketch configuration and upload again.
+
+In Arduino IDE, install **esp32 by Espressif Systems** using Boards Manager
+(version **2.0.17** matches the compiled PlatformIO environment). Select
+**Heltec WiFi Kit 32 (V3)** and the CP2102 COM port. Through Library Manager install
+**Adafruit SSD1306** (including dependencies) and **ArduinoJson 7.4.2**.
+Open `HeltecApiTest.ino`, click Upload, then open Serial Monitor at 115200 baud
+and tap RESET. BOOT sends another request. With the CP2102 connection, leave
+USB CDC On Boot disabled if that option appears.
+
+The firmware sends `ngrok-skip-browser-warning` for tunnel requests. HTTPS uses
+`setInsecure()` for this temporary connectivity test; do not use it for sensitive
+queries or permanent deployments. Your unauthenticated API is publicly reachable
+while the tunnel runs, so stop ngrok after testing.
