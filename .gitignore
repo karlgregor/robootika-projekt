@@ -1,0 +1,14 @@
+# Local credentials and machine-specific files
+.env
+.env.*
+!.env.example
+secrets.h
+*.pem
+*.key
+.DS_Store
+
+# Generated firmware and dependencies
+.pio/
+node_modules/
+dist/
+*.log

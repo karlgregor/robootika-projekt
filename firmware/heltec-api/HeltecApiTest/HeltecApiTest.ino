@@ -7,12 +7,8 @@
 #include <Adafruit_SSD1306.h>
 #include <ArduinoJson.h>
 
-// Näidisseadistus võimaldab kompileerida ka enne võrguandmete lisamist.
-#if __has_include("secrets.h")
+// Võrguseadistus peab olema olemas; puuduva faili korral katkeb kompileerimine.
 #include "secrets.h"
-#else
-#include "secrets.example.h"
-#endif
 
 // Heltec WiFi Kit 32 V3 sisseehitatud OLED ja BOOT-nupp.
 constexpr int OLED_SDA = 17;
@@ -30,6 +26,9 @@ String replyText;
 String responseCommand;
 size_t replyPage = 0;
 constexpr size_t PAGE_CHARS = 21 * 5;
+constexpr uint32_t WIFI_TIMEOUT_MS = 15000;
+constexpr uint32_t PAGE_INTERVAL_MS = 4000;
+constexpr uint32_t DEBOUNCE_MS = 50;
 
 // OLED-i vaikefont on ASCII; teisendame eesti tähed loetavaks.
 String oledText(String text) {
@@ -67,9 +66,14 @@ void showReply() {
 bool connectWifi() {
   if (WiFi.status() == WL_CONNECTED) return true;
   showMessage("WiFi", "Connecting...");
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  // Tühja parooliga ühendume avatud võrku.
+  if (WIFI_PASSWORD[0] == '\0') {
+    WiFi.begin(WIFI_SSID);
+  } else {
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  }
   const uint32_t started = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - started < 15000) delay(100);
+  while (WiFi.status() != WL_CONNECTED && millis() - started < WIFI_TIMEOUT_MS) delay(100);
   if (WiFi.status() != WL_CONNECTED) {
     showMessage("WiFi failed", "Check 2.4 GHz/SSID. BOOT retries.");
     return false;
@@ -165,8 +169,9 @@ void loop() {
     lastButtonChange = millis();
   }
   static bool pressHandled = false;
-  if (button == HIGH) pressHandled = false;
-  if (button == LOW && !pressHandled && millis() - lastButtonChange >= 50) {
+  const bool buttonStable = millis() - lastButtonChange >= DEBOUNCE_MS;
+  if (buttonStable && button == HIGH) pressHandled = false;
+  if (buttonStable && button == LOW && !pressHandled) {
     pressHandled = true;
     requestPending = true;
   }
@@ -176,7 +181,7 @@ void loop() {
     // Päringu ajal all hoitud nupp ei põhjusta korduspäringut.
     pressHandled = digitalRead(BUTTON) == LOW;
   }
-  if (replyText.length() > PAGE_CHARS && millis() - lastPageChange >= 4000) {
+  if (replyText.length() > PAGE_CHARS && millis() - lastPageChange >= PAGE_INTERVAL_MS) {
     replyPage = (replyPage + 1) % ((replyText.length() + PAGE_CHARS - 1) / PAGE_CHARS);
     lastPageChange = millis();
     showReply();
