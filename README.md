@@ -28,3 +28,10 @@ Iga meeskond **forkib** selle repo ja dokumenteerib siin oma seadme/projekti:
 - Õppeaine: IFI6203.DT Robootika  
 - Autor(id): Karl-Gregor Keerles, Taaniel Tubin, Raimond Lige, Karel Reose, Patrick Jurs
 - Aasta / semester: 2026 sügis
+
+## Heltec API ja OLED test
+
+Heltec WiFi Kit 32 V3 püsivara ning seadistamise ja üleslaadimise juhend asuvad
+kataloogis [`firmware/heltec-api`](firmware/heltec-api/README.md). Test saadab
+serverisse tekstipäringu käivitamisel ja BOOT-nupu vajutamisel ning kuvab vastuse
+sisseehitatud OLED-il.

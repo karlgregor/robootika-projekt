@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101914" />
+    <title>Kodu Assistant Lab</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="masthead">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <div>
+          <p class="eyebrow">Robootika prototype / AI console</p>
+          <h1>Kodu Assistant <em>Lab</em></h1>
+        </div>
+        <div class="server-status" id="server-status">
+          <span class="status-dot"></span>
+          <span>Checking server</span>
+        </div>
+      </header>
+
+      <section class="intro">
+        <a href="/admin" style="color:var(--acid)">Command rules, settings &amp; logs →</a>
+        <p>
+          Test the same Groq pipeline the ESP32 will use. Type a request or record
+          a short voice message in Estonian or English.
+        </p>
+      </section>
+
+      <section class="workbench" aria-label="Assistant test controls">
+        <article class="panel text-panel">
+          <div class="panel-heading">
+            <span class="step">01</span>
+            <div>
+              <h2>Type a request</h2>
+              <p>Test intent recognition and general questions.</p>
+            </div>
+          </div>
+
+          <form id="text-form">
+            <label for="text-input">Message</label>
+            <textarea
+              id="text-input"
+              name="text"
+              rows="4"
+              maxlength="1000"
+              placeholder="e.g. Siin on liiga pime"
+              required
+            ></textarea>
+            <div class="examples" aria-label="Example messages">
+              <button type="button" data-example="Pane ventilaator tööle">Fan on</button>
+              <button type="button" data-example="Mis on Eesti pealinn?">Ask a question</button>
+              <button type="button" data-example="Ma lähen magama">Sleep mode</button>
+            </div>
+            <button class="primary-button" id="send-button" type="submit">
+              Send to assistant
+              <span aria-hidden="true">→</span>
+            </button>
+          </form>
+        </article>
+
+        <article class="panel voice-panel">
+          <div class="panel-heading">
+            <span class="step">02</span>
+            <div>
+              <h2>Speak a request</h2>
+              <p>Record, transcribe, and interpret one audio clip.</p>
+            </div>
+          </div>
+
+          <div class="recorder">
+            <div class="record-visual" id="record-visual" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <button class="record-button" id="record-button" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 15.5a3.5 3.5 0 0 0 3.5-3.5V5a3.5 3.5 0 1 0-7 0v7a3.5 3.5 0 0 0 3.5 3.5Z" />
+                <path d="M5.5 11.5v.5a6.5 6.5 0 0 0 13 0v-.5M12 18.5V22M9 22h6" />
+              </svg>
+              <span id="record-label">Start recording</span>
+            </button>
+            <p class="record-hint" id="record-hint">
+              Your browser will ask for microphone permission. Maximum 10 seconds.
+            </p>
+            <div class="timer" id="timer" aria-live="polite">00:00</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="result-panel" id="result-panel" aria-live="polite">
+        <div class="result-placeholder" id="result-placeholder">
+          <span class="terminal-symbol">›_</span>
+          <p>The assistant response will appear here.</p>
+        </div>
+        <div class="result-content" id="result-content" hidden>
+          <div class="result-topline">
+            <p class="eyebrow">Latest response</p>
+            <span class="result-kind" id="result-kind"></span>
+          </div>
+          <dl>
+            <div>
+              <dt>Transcript</dt>
+              <dd id="result-transcript"></dd>
+            </div>
+            <div>
+              <dt>Command</dt>
+              <dd><code id="result-command"></code></dd>
+            </div>
+            <div class="reply-row">
+              <dt>Assistant</dt>
+              <dd id="result-reply"></dd>
+            </div>
+          </dl>
+        </div>
+        <div class="result-error" id="result-error" hidden>
+          <span>Request failed</span>
+          <p id="error-message"></p>
+        </div>
+      </section>
+
+      <footer>
+        <span>Fastify</span><i></i><span>Groq Whisper</span><i></i><span>Structured output</span>
+      </footer>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
