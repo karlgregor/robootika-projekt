@@ -91,7 +91,7 @@ Süsteemil on järgmised väljundid:
 | LED-id | Tavalised LED-id | Valgustuse demonstreerimine |
 | Takistid | 220Ω | LED-ide voolu piiramine |
 | Servomootor | SG90 | Liikuva mehhanismi juhtimine |
-| Andur | BME280 | Temperatuur ja õhuniiskus |
+| Andur | DHT22 | Temperatuur ja õhuniiskus |
 | Ventilaator | Väike alalisvooluventilaator | Ventilatsiooni demonstreerimine |
 | Mootoridraiver | Sobiv MOSFET-moodul | Ventilaatori lülitamine |
 | Tasememuundur | 5 V / 3,3 V | UART-suhtluse pingetasemete sobitamine |
