@@ -8,7 +8,7 @@ lubatud koduassistendi käsuks.
 Vajalik on Node.js 22 või uuem versioon.
 
 ```bash
-cd server
+cd src/server
 cp .env.example .env
 # Lisa faili .env enda GROQ_API_KEY.
 npm install
@@ -83,7 +83,7 @@ Käsu keelamine blokeerib nii AI kui ka fraasireegli valitud käsu. Uute riistva
 tegevuste lisamine nõuab endiselt serveri ja püsivara muutmist; paneel seadistab
 olemasolevaid käske. Riistvara käivitamist paneeli test ei teosta.
 
-Seaded säilivad failis `server/data/settings.json` (Gitist välja jäetud). Viimased
+Seaded säilivad failis `src/server/data/settings.json` (Gitist välja jäetud). Viimased
 200 logikirjet säilivad mälus ja kaovad taaskäivitamisel. Transkriptide logimist
 saab välja lülitada; varasemate transkriptide eemaldamiseks kasuta „Clear logs”.
 Adminiliides ja selle API on lubatud ainult localhostilt ning sama päritoluga
@@ -96,3 +96,24 @@ npm test
 npm run typecheck
 npm run build
 ```
+
+## DHT22 näidud ESP32-lt
+
+`POST /api/v1/interpret-text` võtab vastu valikulise `sensors` objekti:
+
+```json
+{
+  "text": "Mis on toas temperatuur ja õhuniiskus?",
+  "sensors": { "temperatureC": 22.4, "humidityPercent": 46.8, "ageMs": 1200 }
+}
+```
+
+Temperatuur peab olema −40…80 °C, suhteline õhuniiskus 0…100% ning näidu vanus
+päringu saatmisel 0…10000 ms. Vigane objekt annab HTTP 400. Näidud saadetakse
+AI-le ainult selle päringu kontekstis; neid ei salvestata ühise viimase näiduna.
+Ilma näitudeta päringu puhul öeldakse AI-le, et hetkenäidud puuduvad. Tegemist on
+seadme esitatud väärtustega, mitte serveri sõltumatult kontrollitud mõõtmisega.
+Täpsed fraasireeglid rakenduvad endiselt enne AI-d ega kasuta dünaamilisi näite;
+küsi teise sõnastusega või eemalda vastav fikseeritud reegel, et proovida AI vastust.
+Häälepäringud ja brauseritest ei saa UNO näite automaatselt: hetkel lisab need
+Helteci tekstipäring. Seadistus ja juhtmestik: `src/firmware/heltec-api/README.md`.

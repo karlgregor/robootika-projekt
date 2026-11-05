@@ -12,3 +12,6 @@ secrets.h
 node_modules/
 dist/
 *.log
+
+# Firmware transfer archives
+src/firmware/**/*.zip

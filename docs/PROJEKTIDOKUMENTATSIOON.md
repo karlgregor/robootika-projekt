@@ -2,6 +2,17 @@
 
 **Projekti nimi:** Tehisintellektil põhinev hääljuhitav koduassistent
 
+## Prototüübi hetkeseis
+
+Töötavad Helteci tekstipäringud USB Serial Monitorist, Wi-Fi ühendus serveriga,
+OLED-vastused, UNO sisseehitatud LED-i juhtimine UART kaudu ja DHT22 temperatuuri
+ning õhuniiskuse edastamine AI-le. Serveril on ka brauseripõhine mikrofoni test.
+
+Allpool kirjeldatud füüsiline hääljuhtimine, heliväljund, ventilaator ja servo on
+arenduse eesmärgid. Paigaldusjuhendid ja tegelik failistruktuur asuvad
+[projekti README-s](../README.md). Kasutusel olev andur on DHT22; BME280 oli
+esialgne valik.
+
 ## 1. Projekti eesmärk ja seadme lühikirjeldus
 
 Meie projekti eesmärk on luua tehisintellektil põhinev hääljuhitav koduassistent, mis võimaldab kasutajal juhtida erinevaid elektroonilisi seadmeid loomuliku kõne abil.
@@ -134,13 +145,13 @@ Süsteem koosneb kahest mikrokontrollerist, mis paiknevad ühes korpuses.
 - UART TX1 (D1) → ESP32 RX läbi pingetaseme muunduri.
 - GND → ühine maa kõigi omavahel ühendatud komponentide jaoks.
 
-**Oluline:** Helteci I²S ja UART viigud on veel määramata. Enne skeemi koostamist tuleb kontrollida konkreetse plaadi vabade GPIO-de olemasolu. Mootorite ja kõlari toide tuleb dimensioneerida nende voolutarbimise järgi.
+**Oluline:** Helteci I²S viigud on veel määramata. Praegune UART kasutab TX GPIO4 ja RX GPIO5. Enne skeemi koostamist tuleb kontrollida konkreetse plaadi vabade GPIO-de olemasolu. Mootorite ja kõlari toide tuleb dimensioneerida nende voolutarbimise järgi.
 
-Lõplik ühendusskeem koostatakse pärast komponentide kinnitamist ning salvestatakse faili `hardware/wiring-diagram.png`.
+Lõplik ühendusskeem koostatakse pärast komponentide kinnitamist ning salvestatakse faili `src/hardware/wiring-diagram.png`.
 
 ## 7. Süsteemi juhtiv kood (pseudokood)
 
-Kuna süsteemi programmeerimist ei ole veel alustatud, on allpool esitatud planeeritud tööloogika pseudokoodina.
+Allpool on kavandatud terviklahenduse pseudokood; see hõlmab ka veel teostamata funktsioone.
 
 ### ESP32 – häälassistendi juhtimine
 
@@ -250,26 +261,3 @@ ALUSTA
             MUIDU:
                 Saada käsu täitmise kinnitus
 ```
-
-### Planeeritud projektifailide struktuur
-
-```text
-projekt/
-├── hardware/
-│   ├── wiring-diagram.png
-│   └── enclosure.stl
-├── firmware/
-│   ├── esp32/
-│   │   └── esp32.ino
-│   └── arduino/
-│       └── arduino.ino
-├── server/
-│   └── src/
-│       ├── index.ts
-│       ├── speech.ts
-│       ├── assistant.ts
-│       └── commands.ts
-└── README.md
-```
-
-**Märkus:** Tegemist on projekti esialgse dokumentatsiooniga. Komponentide lõplik valik, ühendusskeem ja töötav lähtekood lisatakse arenduse käigus.

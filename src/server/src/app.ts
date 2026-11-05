@@ -3,10 +3,12 @@ import Fastify, { type FastifyInstance, type FastifyReply } from "fastify";
 import { readFile } from "node:fs/promises";
 import { z } from "zod";
 import type { Assistant } from "./services/assistant.js";
+import { sensorSnapshotSchema, type SensorSnapshot } from "./domain/sensors.js";
 import { Control, settingsSchema } from "./control.js";
 
 const textRequestSchema = z.object({
   text: z.string().min(1).max(1_000),
+  sensors: sensorSnapshotSchema.optional(),
 });
 
 const allowedAudioTypes = new Set([
@@ -53,9 +55,9 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     if (!["/api/v1/voice", "/api/v1/interpret-text"].includes(request.url)) return;
     control.record({ requestId: request.id, path: request.url, status: reply.statusCode, durationMs: Math.round(reply.elapsedTime) });
   });
-  async function interpret(text: string, requestId: string) {
+  async function interpret(text: string, requestId: string, sensors?: SensorSnapshot) {
     const started = performance.now();
-    const { decision, source } = await control.interpret(text, () => options.assistant.interpret(text));
+    const { decision, source } = await control.interpret(text, () => sensors ? options.assistant.interpret(text, sensors) : options.assistant.interpret(text));
     control.record({ requestId, source, ...(control.get().logTranscripts ? { transcript: text, ...decision } : { kind: decision.kind, command: decision.command }), interpretationMs: Math.round(performance.now() - started) });
     return decision;
   }
@@ -97,11 +99,11 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     if (!parsed.success) {
       return reply.status(400).send({
         error: "INVALID_REQUEST",
-        message: "Body must contain a non-empty text field.",
+        message: "Body must contain non-empty text and, if supplied, valid sensor readings no older than 10000 ms.",
       });
     }
 
-    const decision = await interpret(parsed.data.text, request.id);
+    const decision = await interpret(parsed.data.text, request.id, parsed.data.sensors);
     return { transcript: parsed.data.text, ...decision };
   });
 

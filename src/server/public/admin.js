@@ -69,7 +69,6 @@ $('#settings-form').onsubmit = async (event) => {
     render(); notice('Saved. Settings are active.'); await refreshLogs();
   } catch (error) { notice(error.message); } finally { $('#save').disabled = false; }
 };
-// Keep toggle edits when adding or removing rows.
 for (const [selector, key] of [['#ai-enabled', 'aiEnabled'], ['#questions-enabled', 'questionsEnabled'], ['#log-transcripts', 'logTranscripts']]) {
   $(selector).onchange = () => { settings[key] = $(selector).checked; };
 }

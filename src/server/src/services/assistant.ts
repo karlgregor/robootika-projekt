@@ -1,5 +1,6 @@
 import Groq, { toFile } from "groq-sdk";
 import type { AppConfig } from "../config.js";
+import { sensorContext, type SensorSnapshot } from "../domain/sensors.js";
 import type { Settings } from "../control.js";
 import {
   intentDecisionJsonSchema,
@@ -15,7 +16,7 @@ export interface AudioInput {
 
 export interface Assistant {
   transcribe(audio: AudioInput): Promise<string>;
-  interpret(text: string): Promise<IntentDecision>;
+  interpret(text: string, sensors?: SensorSnapshot): Promise<IntentDecision>;
 }
 
 const systemPrompt = `You are the brain of a small home-assistant prototype.
@@ -79,8 +80,6 @@ export class GroqAssistant implements Assistant {
     const result = await this.client.audio.transcriptions.create({
       file,
       model: this.config.GROQ_TRANSCRIPTION_MODEL,
-      // Keele automaattuvastus võimaldab nii eesti kui ka inglise kõnet.
-      // Whisper ei toeta kahe lubatud keele loendit; tõlgendaja kontrollib teksti keelt.
       prompt: "Estonian and English home assistant. Eesti ja inglise keel. Pane tuli põlema. Turn on the light. Ventilaator, fan, kardin, blinds, temperatuur, temperature.",
       response_format: "json",
       temperature: 0,
@@ -89,7 +88,7 @@ export class GroqAssistant implements Assistant {
     return result.text.trim();
   }
 
-  public async interpret(text: string): Promise<IntentDecision> {
+  public async interpret(text: string, sensors?: SensorSnapshot): Promise<IntentDecision> {
     if (text.trim().length === 0) {
       return {
         kind: "UNSUPPORTED",
@@ -102,7 +101,7 @@ export class GroqAssistant implements Assistant {
       model: this.config.GROQ_INTENT_MODEL,
       temperature: 0,
       messages: [
-        { role: "system", content: buildSystemPrompt(this.settings?.()) },
+        { role: "system", content: buildSystemPrompt(this.settings?.()) + "\n" + sensorContext(sensors) },
         { role: "user", content: text },
       ],
       response_format: {
